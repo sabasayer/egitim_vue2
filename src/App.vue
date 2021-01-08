@@ -2,11 +2,38 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+      <router-link to="/favorites"
+        >Favoriler <span>{{ favoriteCount }}</span></router-link
+      >
     </div>
-    <router-view/>
+    <router-view />
   </div>
 </template>
+
+<script lang="ts">
+import { resolve } from "@sabasayer/module.core";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import { IMovieDbResult } from "./api/movie-db-result";
+import { getData } from "./api/service";
+import { MovieModule } from "./store/movie.module";
+import { MovieController } from "@/api/movie-controller";
+import { movieModule } from "./module";
+
+@Component
+export default class AppComponent extends Vue {
+  @resolve.controller(MovieController)
+  controller!: MovieController;
+
+  get favoriteCount() {
+    return MovieModule.getFavorites.length;
+  }
+
+  async created() {
+    const result = await this.controller.get("1");
+    if (result) MovieModule.setMovies(result.results);
+  }
+}
+</script>
 
 <style lang="scss">
 #app {
